@@ -16,9 +16,14 @@ function showError(input, message) {
 }
 
 //check email valid
-function isValidEmail(email) {
+function checkEmail(input) {
   const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(String(email).toLowerCase());
+
+  if (re.test(input.value.trim())) {
+    showSuccess(input);
+  } else {
+    showError(input, "Email is not valid");
+  }
 }
 
 //success message
@@ -27,33 +32,58 @@ function showSuccess(input) {
   formControl.className = "form-control success";
 }
 
+//check required
+function checkRequired(input) {
+  input.forEach(function (item) {
+    if (item.value === "") {
+      showError(item, getfieldName(item.id) + " is required");
+    } else {
+      showSuccess(item);
+    }
+  });
+}
+
+//check the length of input
+function checkLength(input, min, max) {
+  if (input.value.length < min) {
+    showError(
+      input,
+      `${getfieldName(input.id)} must be atleat ${min} charcters`
+    );
+  } else if (input.value.length > max) {
+    showError(
+      input,
+      `${getfieldName(input.id)} must be less than ${max} charcters`
+    );
+  } else {
+    showSuccess(input);
+  }
+}
+
+// check password match
+function checkPasswordMatch(input1, input2) {
+  if (input1.value == input2.value) {
+    showSuccess(input);
+  } else {
+    showError(input2, "passwords not matching");
+    showError(input1, "passwords not matching");
+  }
+}
+
+//get field name
+
+function getfieldName(value) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
 //event listeners
 form.addEventListener("submit", function (e) {
   e.preventDefault();
 
-  if (username.value == "") {
-    showError(username, "user name not entered");
-  } else {
-    showSuccess(username);
-  }
-
-  if (email.value == "") {
-    showError(email, "email not entered");
-  } else if (!isValidEmail(email.value)) {
-    showError(email, "email entered is not correct");
-  } else {
-    showSuccess(email);
-  }
-
-  if (password.value == "") {
-    showError(password, "password not entered");
-  } else {
-    showSuccess(password);
-  }
-
-  if (password2.value == "") {
-    showError(password2, "password not entered");
-  } else {
-    showSuccess(password2);
-  }
+  checkRequired([username, email, password, password2]);
+  checkLength(username, 3, 15);
+  checkLength(password, 6, 20);
+  checkLength(password2, 6, 20);
+  checkEmail(email);
+  checkPasswordMatch(password, password2);
 });
